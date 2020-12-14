@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nfs-direct-service
+  namespace: pv-demo
+spec:
+  selector:
+    app: nfs-direct-site
+  ports:
+  - protocol: TCP
+    port: 80

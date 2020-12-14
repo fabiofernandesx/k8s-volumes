@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nfs-direct-site
+  namespace: pv-demo
+  name: nfs-direct-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-direct-site
+  template:
+    metadata:
+      labels:
+        app: nfs-direct-site
+    spec:
+      volumes:
+        - name: nfs-direct-volume
+          persistentVolumeClaim:
+            claimName: nfs-direct-pvc
+      containers:
+        - image: nginx
+          name: nfs-direct-site
+          resources:
+            limits:
+              cpu: 1
+              memory: 100Mi
+          volumeMounts:
+            - name: nfs-direct-volume
+              mountPath: /usr/share/nginx/html

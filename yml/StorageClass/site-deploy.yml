@@ -1,0 +1,64 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: ssd-storage-class-site
+  namespace: pv-demo
+  name: ssd-storage-class-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ssd-storage-class-site
+  template:
+    metadata:
+      labels:
+        app: ssd-storage-class-site
+    spec:
+      volumes:
+        - name: ssd-storage-class-volume
+          persistentVolumeClaim:
+            claimName: ssd-nfs-pvc-1
+      containers:
+        - image: nginx
+          name: ssd-storage-class-site
+          resources:
+            limits:
+              cpu: '1'
+              memory: 100Mi
+          volumeMounts:
+            - name: ssd-storage-class-volume
+              mountPath: /usr/share/nginx/html
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ssd-storage-class-service
+  namespace: pv-demo
+spec:
+  selector:
+    app: ssd-storage-class-site
+  ports:
+  - protocol: TCP
+    port: 80
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  namespace: pv-demo
+  name: ssd-storage-class-ingress
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - host: ssd-storage-class.192.168.2.101.nip.io
+    http:
+      paths:
+      - path: / 
+        pathType: ImplementationSpecific       
+        backend:
+          service:
+            name: ssd-storage-class-service
+            port: 
+              number: 80
+              

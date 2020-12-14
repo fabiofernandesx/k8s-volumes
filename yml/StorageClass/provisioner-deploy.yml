@@ -1,0 +1,40 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: nfs-client-provisioner
+  namespace: pv-demo
+spec:
+  selector:
+    matchLabels:
+      app: nfs-client-provisioner
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nfs-client-provisioner
+    spec:
+      serviceAccountName: nfs-client-provisioner
+      containers:
+        - name: nfs-client-provisioner
+          image: quay.io/external_storage/nfs-client-provisioner-arm:latest
+          resources:
+            limits:
+              cpu: 1
+              memory: 1Gi
+          volumeMounts:
+            - name: nfs-client-ssd
+              mountPath: /persistentvolumes
+          env:
+            - name: PROVISIONER_NAME
+              value: ff1.dev/nfs
+            - name: NFS_SERVER
+              value: 192.168.2.30
+            - name: NFS_PATH
+              value: /ssd/dynamic
+      volumes:
+        - name: nfs-client-ssd
+          nfs:
+            server: 192.168.2.30
+            path: /ssd/dynamic
