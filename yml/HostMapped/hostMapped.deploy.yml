@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: host-mapped-site
+  namespace: pv-demo
+  name: host-mapped-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: host-mapped-site
+  template:
+    metadata:
+      labels:
+        app: host-mapped-site
+    spec:
+      volumes:
+        - name: host-mapped-nfs
+          persistentVolumeClaim:
+            claimName: host-mapped-pvc
+      containers:
+        - image: nginx
+          name: host-mapped-site
+          volumeMounts:
+            - name: host-mapped-nfs
+              mountPath: /usr/share/nginx/html
